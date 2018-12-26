@@ -39,5 +39,6 @@ const discordRebootMessage = async ({ discordClient }) => {
 
 module.exports = {
   discordNoStreamSendMessage,
-  discordStreamLiveSendMessage
+  discordStreamLiveSendMessage,
+  discordRebootMessage
 };
