@@ -30,7 +30,7 @@ const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTi
 const discordRebootMessage = async ({ discordClient }) => {
   try {
     const generalChannel = discordClient.channels.find(ch => ch.name === config.discordGeneralChannel);
-    const message = `@MikamiHero Rebooting complete. Build successful :) Ready to rock!`;
+    const message = `@MikamiHero#5721 Rebooting complete. Build successful :robot: Ready to rock!`;
     await generalChannel.send(message);
   } catch (err) {
     throw new DiscordError("Error in discordStreamLiveSendMessage: ", err);
