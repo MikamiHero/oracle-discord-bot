@@ -1,13 +1,6 @@
 {
     "dev": {
-        "discordGeneralChannel": "",
-        "botToken": "",
-        "consumer_key": "",
-        "consumer_secret": "",
-        "access_token": "",
-        "access_token_secret": "",
-        "twitchAppClientId": "",
-        "twitchAppClientSecret": "",
-        "twitchDefaultChannelName": ""
+        "discordGeneralChannel": "notes",
+        "twitchDefaultChannelName": "MikamiHero"
     }
 }
