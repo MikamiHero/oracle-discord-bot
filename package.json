@@ -19,7 +19,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=dev node src/app.js"
+    "start": "NODE_ENV=dev node src/app.js",
+    "startProd": "node src/app.js"
   },
   "author": "mikamihero",
   "license": "ISC"

@@ -2,5 +2,13 @@
     "dev": {
         "discordGeneralChannel": "notes",
         "twitchDefaultChannelName": "MikamiHero"
+    },
+    "test": {
+        "discordGeneralChannel": "notes_deploy",
+        "twitchDefaultChannelName": "MikamiHero"
+    },
+    "prod": {
+        "discordGeneralChannel": "batchat_v2",
+        "twitchDefaultChannelName": "MikamiHero"
     }
 }
