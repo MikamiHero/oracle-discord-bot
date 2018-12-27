@@ -7,7 +7,7 @@
         "discordGeneralChannel": "notes_deploy",
         "twitchDefaultChannelName": "MikamiHero"
     },
-    "prod": {
+    "production": {
         "discordGeneralChannel": "batchat_v2",
         "twitchDefaultChannelName": "MikamiHero"
     }
