@@ -13,6 +13,5 @@ config.twitAccessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 // Config taken from config.json file
 config.discordGeneralChannel = config[config.nodeEnv].discordGeneralChannel;
 config.twitchDefaultChannelName = config[config.nodeEnv].twitchDefaultChannelName;
-config.timezone = config[config.nodeEnv].momentTimezoneOffset;
 
 module.exports = config;
