@@ -1,4 +1,5 @@
 const config = require("../config");
+const moment = require("moment");
 
 class DiscordError extends Error {
   constructor(message) {
@@ -30,7 +31,7 @@ const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTi
 const discordRebootMessage = async ({ discordClient }) => {
   try {
     const generalChannel = discordClient.channels.find(ch => ch.name === config.discordGeneralChannel);
-    const message = `@MikamiHero#5721 Rebooting complete. Build successful :robot: Ready to rock!`;
+    const message = `Rebooting complete. Build successful at time ${moment().toString()} :robot: Ready to rock!`;
     await generalChannel.send(message);
   } catch (err) {
     throw new DiscordError("Error in discordStreamLiveSendMessage: ", err);
