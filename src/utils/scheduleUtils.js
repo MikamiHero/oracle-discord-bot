@@ -1,5 +1,6 @@
 const schedule = require("node-schedule");
 const isEmpty = require("lodash.isempty");
+const moment = require("moment");
 const config = require("../config");
 const { getNoStreamTweet } = require("./twitUtils");
 const { discordNoStreamSendMessage, discordStreamLiveSendMessage } = require("./discordUtils");
@@ -38,9 +39,12 @@ const checkNoStreamJob = async ({ discordClient }) => {
   rule.hour = 21;
   rule.minute = 30;
   await schedule.scheduleJob(rule, async () => {
-    const tweetURL = getNoStreamTweet();
+    console.log("Executing scheduled job for no stream tweet", moment().toString());
+    const tweetURL = await getNoStreamTweet();
     if (tweetURL) {
       await discordNoStreamSendMessage({ discordClient, tweetURL });
+    } else {
+      console.log("No tweet detected that indicates no streaming at: ", moment().toString());
     }
   });
 };

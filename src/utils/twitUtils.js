@@ -48,8 +48,7 @@ const noStreamFilter = ({ tweetText }) => {
   return noStreamBool.some(bool => bool === true);
 };
 
-const getLatestNoStreamTweet = ({ tweets }) =>
-  tweets.find(tweet => noStreamFilter({ tweetText: tweet.text }) === false);
+const getLatestNoStreamTweet = ({ tweets }) => tweets.find(tweet => noStreamFilter({ tweetText: tweet.text }) === true);
 
 const last24Hours = ({ tweetDate }) =>
   moment().diff(moment(tweetDate, "dd MMM DD HH:mm:ss ZZ YYYY", "en"), "hours") < 24;
