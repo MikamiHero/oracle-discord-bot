@@ -23,6 +23,7 @@ const checkStreamLiveJob = async ({ discordClient }) => {
           streamTitle: twitchStreamObj.twitchStreamTitle,
           twitchURL: twitchStreamObj.twitchURL
         });
+        // TODO: Add functionality to tweet out when I go live too
       }
       resolve(true);
     } catch (err) {

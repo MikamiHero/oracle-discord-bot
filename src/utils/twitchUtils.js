@@ -62,10 +62,12 @@ const twitchIsChannelLive = async () => {
     twitchAPI.clientID = config.twitchAppClientId;
     // First get the ID of the channel you want to investigate
     const twitchChannelId = await twitchGetChannelIdByUsername({});
+    console.log("Twitch channel ID " + twitchChannelId);
     // Make the request to see if the channel is live
     twitchChannel = await new Promise((resolve, reject) => {
       twitchAPI.streams.channel({ channelID: twitchChannelId }, (err, res) => {
         if (err) {
+          console.log("error inside promise: ", err);
           reject(err);
         } else {
           resolve(res);
