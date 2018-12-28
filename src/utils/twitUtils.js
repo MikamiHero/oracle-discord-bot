@@ -26,6 +26,9 @@ const tweetParams = {
       exclude_replies: true,
       include_rts: false
     }
+  },
+  streamGoingLiveTweet: {
+    endPoint: "statuses/update"
   }
 };
 
@@ -68,4 +71,15 @@ const getNoStreamTweet = async () => {
   }
 };
 
-module.exports = { getNoStreamTweet };
+const tweetStreamGoingLive = async ({ twitchURL, streamTitle }) => {
+  try {
+    const tweet = {
+      status: `LIVE at ${twitchURL} ... ${streamTitle}`
+    };
+    await Twitter.post(streamGoingLiveTweet.endPoint, tweet);
+  } catch (err) {
+    throw new TwitError(`Problem in Twitter API posting: ${err.toString()}`);
+  }
+};
+
+module.exports = { getNoStreamTweet, tweetStreamGoingLive };

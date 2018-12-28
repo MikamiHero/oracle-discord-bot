@@ -2,7 +2,7 @@ const schedule = require("node-schedule");
 const isEmpty = require("lodash.isempty");
 const moment = require("moment");
 const config = require("../config");
-const { getNoStreamTweet } = require("./twitUtils");
+const { getNoStreamTweet, tweetStreamGoingLive } = require("./twitUtils");
 const { discordNoStreamSendMessage, discordStreamLiveSendMessage } = require("./discordUtils");
 const { twitchIsChannelLive } = require("./twitchUtils");
 
@@ -18,12 +18,17 @@ const checkStreamLiveJob = async ({ discordClient }) => {
     try {
       const twitchStreamObj = await twitchIsChannelLive();
       if (!isEmpty(twitchStreamObj)) {
+        // Message my Discord to say I've gone live
         await discordStreamLiveSendMessage({
           discordClient,
           streamTitle: twitchStreamObj.twitchStreamTitle,
           twitchURL: twitchStreamObj.twitchURL
         });
-        // TODO: Add functionality to tweet out when I go live too
+        // Post a Tweet to say I've gone live
+        await tweetStreamGoingLive({
+          twitchURL: twitchStreamObj.twitchURL,
+          streamTitle: twitchStreamObj.twitchStreamTitle
+        });
       }
       resolve(true);
     } catch (err) {
