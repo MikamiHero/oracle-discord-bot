@@ -53,10 +53,10 @@ const checkNoStreamJob = async ({ discordClient }) => {
 const runScheduledJobs = async ({ discordClient }) => {
   try {
     checkNoStreamJob({ discordClient });
-    // Check every minute to see if my Twitch stream is live
+    // Check every 5 minute to see if my Twitch stream is live
     setInterval(() => {
       checkStreamLiveJob({ discordClient });
-    }, 1000);
+    }, 1000 * 60 * 5);
   } catch (err) {
     throw new ScheduleJobError("Problem with running scheduled jobs: ", err.toString());
   }

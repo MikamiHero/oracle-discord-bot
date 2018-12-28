@@ -79,12 +79,14 @@ const twitchIsChannelLive = async () => {
   }
   // stream property will be null if channel is NOT live
   if (!twitchChannel.stream) {
+    console.log("Twitch channel is NOT live");
     // If we were live but then went offline, flick the flag back to false
     if (twitchLiveFlagGlobal === true) {
       twitchLiveFlagGlobal = false;
     }
     return {};
   } else {
+    console.log("Twitch channel is live");
     // If we are live and the global flag is set to false, it means we just went live and return a filled object
     if (twitchLiveFlagGlobal === false) {
       twitchLiveFlagGlobal = true;
