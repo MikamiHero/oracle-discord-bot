@@ -43,7 +43,7 @@ const checkNoStreamJob = async ({ discordClient }) => {
   rule.dayOfWeek = [0, 1, 3, 6];
   // Time to check for no stream tweet should be 9:30pm
   rule.hour = 21;
-  rule.minute = 30;
+  rule.minute = 45;
   await schedule.scheduleJob(rule, async () => {
     console.log("Executing scheduled job for no stream tweet", moment().toString());
     const tweetURL = await getNoStreamTweet();
