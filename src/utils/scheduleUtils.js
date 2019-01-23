@@ -40,6 +40,7 @@ const checkStreamLiveJob = async ({ discordClient }) => {
 const checkNoStreamJob = async ({ discordClient }) => {
   console.log("Executing scheduled job for no stream tweet", moment().toString());
   const tweetURL = await getNoStreamTweet();
+  console.log("tweetURL");
   if (tweetURL) {
     await discordNoStreamSendMessage({ discordClient, tweetURL });
   } else {
@@ -49,7 +50,7 @@ const checkNoStreamJob = async ({ discordClient }) => {
 
 const runScheduledJobs = async ({ discordClient }) => {
   try {
-    cron.schedule("45 23 * * 1,3,6,7", () => {
+    cron.schedule("49 23 * * 1,3,6,7", () => {
       checkNoStreamJob({ discordClient });
     });
     // Check every 5 minute to see if my Twitch stream is live
