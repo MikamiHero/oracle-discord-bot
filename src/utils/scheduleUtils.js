@@ -1,7 +1,7 @@
-const schedule = require("node-schedule");
 const isEmpty = require("lodash.isempty");
 const moment = require("moment");
 const config = require("../config");
+const cron = require("node-cron");
 const { getNoStreamTweet, tweetStreamGoingLive } = require("./twitUtils");
 const { discordNoStreamSendMessage, discordStreamLiveSendMessage } = require("./discordUtils");
 const { twitchIsChannelLive } = require("./twitchUtils");
@@ -38,32 +38,26 @@ const checkStreamLiveJob = async ({ discordClient }) => {
 };
 
 const checkNoStreamJob = async ({ discordClient }) => {
-  const rule = new schedule.RecurrenceRule();
-  // We want to only check for no stream tweets on Mon, Wed, Sat and Sun (Tue, Thur, Fri are always confirmed no stream days)
-  rule.dayOfWeek = [0, 1, 3, 6];
-  // Time to check for no stream tweet should be 9:30pm
-  rule.hour = 21;
-  rule.minute = 45;
-  await schedule.scheduleJob(rule, async () => {
-    console.log("Executing scheduled job for no stream tweet", moment().toString());
-    const tweetURL = await getNoStreamTweet();
-    if (tweetURL) {
-      await discordNoStreamSendMessage({ discordClient, tweetURL });
-    } else {
-      console.log("No tweet detected that indicates no streaming at: ", moment().toString());
-    }
-  });
+  console.log("Executing scheduled job for no stream tweet", moment().toString());
+  const tweetURL = await getNoStreamTweet();
+  if (tweetURL) {
+    await discordNoStreamSendMessage({ discordClient, tweetURL });
+  } else {
+    console.log("No tweet detected that indicates no streaming at: ", moment().toString());
+  }
 };
 
 const runScheduledJobs = async ({ discordClient }) => {
   try {
-    checkNoStreamJob({ discordClient });
+    cron.schedule("45 23 * * 1,3,6,7", () => {
+      checkNoStreamJob({ discordClient });
+    });
     // Check every 5 minute to see if my Twitch stream is live
     setInterval(() => {
       checkStreamLiveJob({ discordClient });
     }, 1000 * 60 * 5);
   } catch (err) {
-    throw new ScheduleJobError("Problem with running scheduled jobs: ", err.toString());
+    throw new ScheduleJobError(`Problem with running scheduled jobs: ${err.message}`);
   }
 };
 

@@ -1,6 +1,6 @@
 {
     "dev": {
-        "discordGeneralChannel": "notes",
+        "discordGeneralChannel": "oracle_logs",
         "twitchDefaultChannelName": "MikamiHero"
     },
     "test": {
