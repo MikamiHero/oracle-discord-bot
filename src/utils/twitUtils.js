@@ -67,6 +67,7 @@ const getNoStreamTweet = async () => {
     // If no tweet fires off the trigger, return empty. Else extract URL
     return !noStreamTweet ? null : tweetGetURL({ tweetData: noStreamTweet });
   } catch (err) {
+    console.log(err);
     throw new TwitError("Problem in Twitter API calling: ", err);
   }
 };
