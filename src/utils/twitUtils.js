@@ -43,7 +43,8 @@ const tweetGetURL = ({ tweetData }) => {
   return textURL || entityURL;
 };
 
-const getRecentTweets = async () => Twitter.get(tweetParams.recentTweets.endPoint, tweetParams.recentTweets.params);
+const getRecentTweets = async () =>
+  Twitter.get(tweetParams.recentTweets.endPoint, tweetParams.recentTweets.params);
 
 const noStreamFilter = ({ tweetText }) => {
   const noStreamTriggers = ["No stream", "no stream", "cancel stream"];
@@ -51,7 +52,8 @@ const noStreamFilter = ({ tweetText }) => {
   return noStreamBool.some(bool => bool === true);
 };
 
-const getLatestNoStreamTweet = ({ tweets }) => tweets.find(tweet => noStreamFilter({ tweetText: tweet.text }) === true);
+const getLatestNoStreamTweet = ({ tweets }) =>
+  tweets.find(tweet => noStreamFilter({ tweetText: tweet.text }) === true);
 
 const last24Hours = ({ tweetDate }) =>
   moment().diff(moment(tweetDate, "dd MMM DD HH:mm:ss ZZ YYYY", "en"), "hours") < 24;
@@ -61,7 +63,9 @@ const getNoStreamTweet = async () => {
     // Get the most recent tweets
     const recentTweets = await getRecentTweets();
     // Filter out tweets that haven't been in the last 24 hours since now
-    const tweetsInLast24Hrs = recentTweets.data.filter(tweet => last24Hours({ tweetDate: tweet.created_at }));
+    const tweetsInLast24Hrs = recentTweets.data.filter(tweet =>
+      last24Hours({ tweetDate: tweet.created_at })
+    );
     // Of those tweets in the last 24 hours, see if any of them contain a 'no stream' trigger
     const noStreamTweet = getLatestNoStreamTweet({ tweets: tweetsInLast24Hrs });
     // If no tweet fires off the trigger, return empty. Else extract URL
@@ -83,4 +87,9 @@ const tweetStreamGoingLive = async ({ twitchURL, streamTitle }) => {
   }
 };
 
-module.exports = { getNoStreamTweet, tweetStreamGoingLive };
+module.exports = {
+  getNoStreamTweet,
+  tweetStreamGoingLive,
+  // These functions below aren't being exported for usage; only unit tests
+  last24Hours
+};

@@ -5,9 +5,12 @@
   "main": "src/app.js",
   "dependencies": {
     "bufferutil": "^4.0.1",
+    "cross-env": "^5.2.0",
     "discord": "^0.8.2",
     "discord.js": "^11.4.2",
+    "eslint-plugin-jest": "^22.3.0",
     "https": "^1.0.0",
+    "jest": "^24.1.0",
     "lodash.head": "^4.0.1",
     "lodash.isempty": "^4.4.0",
     "moment": "^2.23.0",
@@ -19,8 +22,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=dev node src/app.js",
+    "test": "jest test/",
+    "coverage": "jest --collectiveCoverageFrom=test/**.js -- coverage test",
+    "start": "cross-env NODE_ENV=dev node src/app.js",
     "startProd": "node src/app.js"
   },
   "author": "mikamihero",

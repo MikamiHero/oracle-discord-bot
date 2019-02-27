@@ -10,7 +10,9 @@ class DiscordError extends Error {
 
 const discordNoStreamSendMessage = async ({ discordClient, tweetURL }) => {
   try {
-    const generalChannel = discordClient.channels.find(ch => ch.name === config.discordGeneralChannel);
+    const generalChannel = discordClient.channels.find(
+      ch => ch.name === config.discordGeneralChannel
+    );
     const message = `@everyone Unfortunately, Mikami cannot stream tonight: ${tweetURL} \n He will see you all soon!`;
     await generalChannel.send(message);
   } catch (err) {
@@ -20,7 +22,9 @@ const discordNoStreamSendMessage = async ({ discordClient, tweetURL }) => {
 
 const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTitle }) => {
   try {
-    const generalChannel = discordClient.channels.find(ch => ch.name === config.discordGeneralChannel);
+    const generalChannel = discordClient.channels.find(
+      ch => ch.name === config.discordGeneralChannel
+    );
     const message = `@everyone LIVE :smile: ${streamTitle} Hope to see you all there ${twitchURL}`;
     await generalChannel.send(message);
   } catch (err) {
@@ -30,7 +34,9 @@ const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTi
 
 const discordRebootMessage = async ({ discordClient }) => {
   try {
-    const generalChannel = discordClient.channels.find(ch => ch.name === config.discordGeneralChannel);
+    const generalChannel = discordClient.channels.find(
+      ch => ch.name === config.discordGeneralChannel
+    );
     const message = `Rebooting complete. Build successful at time ${moment().toString()} :robot: Ready to rock!`;
     await generalChannel.send(message);
   } catch (err) {
