@@ -1,6 +1,9 @@
 const config = require("../config");
 const twitchAPI = require("twitch-api-v5");
 const rp = require("request-promise");
+const isEmpty = require("lodash.isempty");
+const head = require("lodash.head");
+const moment = require("moment");
 
 class TwitchAPIError extends Error {
   constructor(message) {
@@ -101,4 +104,70 @@ const twitchIsChannelLive = async () => {
   }
 };
 
-module.exports = { twitchAuthenticate, twitchIsChannelLive };
+const twitchLastTimeLive = async () => {
+  let twitchChannel;
+  try {
+    twitchAPI.clientID = config.twitchAppClientId;
+    // First get the ID of the channel you want to investigate
+    const twitchChannelId = await twitchGetChannelIdByUsername({});
+    // Check to see if we're already live. If we're not live, get check to see when we were last live
+    const twitchChannelLive = await twitchIsChannelLive();
+    if (!isEmpty(twitchChannelLive)) {
+      // TODO: Something that will feed into the Discord server
+      return;
+    }
+    // Get the top VOD created on the channel
+    twitchChannel = await new Promise((resolve, reject) => {
+      twitchAPI.channels.videos({ channelID: twitchChannelId, limit: 1 }, (err, res) => {
+        if (err) {
+          console.log("error inside promise: ", err);
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+    // Filter out only the an archived video (i.e., omitting highlights which also get returned in this request)
+    const twitchLastBroadcast = head(twitchChannel.videos.filter(video => video.broadcast_type === "archive"));
+    if (isEmpty(twitchLastBroadcast)) {
+      // TODO: Return message to say I haven't been live in over 2 months (as that's the limit for partner VODs)
+      return;
+    }
+    // Calculate the time difference between now and when the last archived broadcast was created
+    const dateNow = moment();
+    const twitchLastLiveDate = moment(twitchLastBroadcast.created_at);
+    console.log(`The last time MikamiHero was LIVE was approx. ${dateNow.diff(twitchLastLiveDate, "days")} days ago.`);
+  } catch (err) {
+    throw new TwitchAPIError(err.toString());
+  }
+};
+
+/* TO DO: Need to authorize as my channel. Bot does app token whereas you need user token 
+  https://dev.twitch.tv/docs/authentication/#types-of-tokens
+*/
+// const twitchGetBanList = async () => {
+//   try {
+//     // Need to authenticate and retrieve Bearer token to make the request
+//     const bearerToken = await twitchAuthenticate();
+//     console.log(bearerToken);
+//     // Getting Twitch channel via ID
+//     const twitchChannelId = await twitchGetChannelIdByUsername({});
+//     // Constructing the options for the request
+//     const options = {
+//       uri: `https://api.twitch.tv/helix/moderation/banned?broadcaster_id=${twitchChannelId}`,
+//       method: "GET",
+//       json: true,
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${bearerToken.access_token}`
+//       }
+//     };
+//     const getBanList = await rp(options);
+//     console.log(getBanList);
+//     return getBanList;
+//   } catch (err) {
+//     throw new TwitchAPIError(err.toString());
+//   }
+// };
+
+module.exports = { twitchAuthenticate, twitchIsChannelLive, twitchLastTimeLive };

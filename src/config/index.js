@@ -12,6 +12,10 @@ config.twitAccessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 
 // Config taken from config.json file
 config.discordGeneralChannel = config[config.nodeEnv].discordGeneralChannel;
+config.discordBotLogChannel = config[config.nodeEnv].discordBotLogChannel;
+config.discordModChannel = config[config.nodeEnv].discordModChannel;
+config.discordNewsChannel = config[config.nodeEnv].discordNewsChannel;
 config.twitchDefaultChannelName = config[config.nodeEnv].twitchDefaultChannelName;
+config.commandPrefix = config[config.nodeEnv].commandPrefix;
 
 module.exports = config;

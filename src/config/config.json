@@ -1,14 +1,29 @@
 {
-    "dev": {
-        "discordGeneralChannel": "oracle_logs",
-        "twitchDefaultChannelName": "MikamiHero"
-    },
-    "test": {
-        "discordGeneralChannel": "notes_deploy",
-        "twitchDefaultChannelName": "MikamiHero"
-    },
-    "production": {
-        "discordGeneralChannel": "batchat_v2",
-        "twitchDefaultChannelName": "MikamiHero"
-    }
+  "dev": {
+    "commandPrefix": "!",
+    "discordGeneralChannel": "oracle_logs",
+    "discordStreamChannel": "oracle_logs",
+    "discordBotLogChannel": "oracle_logs",
+    "discordModChannel": "modchat_v2",
+    "discordNewsChannel": "oracle_logs",
+    "twitchDefaultChannelName": "MikamiHero"
+  },
+  "test": {
+    "commandPrefix": "!",
+    "discordGeneralChannel": "notes_deploy",
+    "discordStreamChannel": "notes_deploy",
+    "discordBotLogChannel": "oracle_logs",
+    "discordModChannel": "modchat_v2",
+    "discordNewsChannel": "batnews_v2",
+    "twitchDefaultChannelName": "MikamiHero"
+  },
+  "production": {
+    "commandPrefix": "!",
+    "discordGeneralChannel": "batchat_v2",
+    "discordStreamChannel": "streampromotion_v2",
+    "discordBotLogChannel": "oracle_logs",
+    "discordModChannel": "modchat_v2",
+    "discordNewsChannel": "batnews_v2",
+    "twitchDefaultChannelName": "MikamiHero"
+  }
 }
