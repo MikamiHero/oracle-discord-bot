@@ -7,7 +7,7 @@ class speedrunAPIError extends Error {
   }
 }
 
-const speedrunAPIBaseURL = "speedrun.com/api/v1";
+const speedrunAPIBaseURL = "https://www.speedrun.com/api/v1";
 const speedrunGameLookup = {
   oot: {
     id: "j1l9qz1g",
@@ -41,7 +41,7 @@ const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   try {
     const categoryId = speedrunGameLookup[game].category[category];
     const speedrunReqOptions = {
-      uri: `https://www.${speedrunAPIBaseURL}/leaderboards/${gameId}/category/${categoryId}`,
+      uri: `${speedrunAPIBaseURL}/leaderboards/${gameId}/category/${categoryId}`,
       qs: {
         top: 1
       },
@@ -54,4 +54,27 @@ const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   }
 };
 
-module.exports = { speedrunGetWRForGameAndCategory };
+const speedrunGetUserID = async ({ username }) => {
+  // Setting up the options for request
+  const speedrunReqOptions = {
+    uri: `${speedrunAPIBaseURL}/users`,
+    qs: {
+      name: username
+    },
+    json: true
+  };
+  try {
+    // Making the requets to retrieve user ID based on username
+    const speedrunUserID = await speedrunAPIRequest({ options: speedrunReqOptions });
+    console.log(speedrunUserID);
+  } catch (err) {
+    throw new speedrunAPIError(err.message);
+  }
+};
+
+const speedrunGetLatestPBForUser = async ({ username }) => {
+  // Setting up the options for the request
+  return await speedrunGetUserID({ username });
+};
+
+module.exports = { speedrunGetWRForGameAndCategory, speedrunGetLatestPBForUser };
