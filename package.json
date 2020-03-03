@@ -7,6 +7,7 @@
     "ascii-table": "0.0.9",
     "bluebird": "^3.5.3",
     "bufferutil": "^4.0.1",
+    "cross-env": "^7.0.0",
     "discord": "^0.8.2",
     "discord.js": "^11.4.2",
     "djs-commands": "^1.2.2",
@@ -27,7 +28,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=dev node src/app.js",
+    "start": "cross-env NODE_ENV=dev node src/app.js",
     "startProd": "node src/app.js"
   },
   "author": "mikamihero",
