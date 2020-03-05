@@ -1,5 +1,6 @@
 const config = require("../config");
 const moment = require("moment");
+const humanizeDuration = require("humanize-duration");
 const Discord = require("discord.js");
 const { speedrunGetLatestPBForUser, speedrunGetUserID } = require("../utils/speedrunUtils");
 
@@ -33,7 +34,7 @@ const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
     speedrunPBEmbed.addField("Category", latestSpeedrunPBForUser.run.category, true);
     speedrunPBEmbed.addField(
       "Time",
-      moment.duration(latestSpeedrunPBForUser.run.times["primary_t"], "seconds").format("hh:mm:ss"),
+      humanizeDuration(moment.duration(latestSpeedrunPBForUser.run.times["primary_t"], "seconds")),
       true
     );
     speedrunPBEmbed.addField("Place", latestSpeedrunPBForUser.place, true);
