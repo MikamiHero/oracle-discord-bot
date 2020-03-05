@@ -44,10 +44,6 @@ const speedrunAPIRequest = async ({ options }) => {
 };
 
 const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
-  const gameId = speedrunGameLookup[game] ? speedrunGameLookup[game].id : null;
-  if (!gameId) {
-    throw new speedrunAPIError("The game you provided does not exist in Oracle's list!");
-  }
   try {
     const categoryId = speedrunGameLookup[game].category[category];
     const speedrunReqOptions = {

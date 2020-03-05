@@ -2,7 +2,11 @@ const config = require("../config");
 const moment = require("moment");
 const humanizeDuration = require("humanize-duration");
 const Discord = require("discord.js");
-const { speedrunGetLatestPBForUser, speedrunGetUserID } = require("../utils/speedrunUtils");
+const {
+  speedrunGetLatestPBForUser,
+  speedrunGetUserID,
+  speedrunGetWRForGameAndCategory
+} = require("../utils/speedrunUtils");
 
 // Command to get the latest PB for someone off speedrun.com
 const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
@@ -21,7 +25,9 @@ const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
       return message.reply("Something went wrong with getting the user.");
     }
     // Now making the request for their latest PB based on user ID
-    const latestSpeedrunPBForUser = await speedrunGetLatestPBForUser({ userID: speedrunUserID });
+    const latestSpeedrunPBForUser = await speedrunGetLatestPBForUser({
+      userID: speedrunUserID
+    });
     // If null, it means something went wrong with fetching the user's PBs
     if (!latestSpeedrunPBForUser) {
       return message.reply("Something went wrong with getting the user's PBs.");
@@ -49,4 +55,22 @@ const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
   }
 };
 
-module.exports = { cmdGetLatestPBForUser };
+// Command to get the WR for a game and category
+const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
+  const args = message.content.match(/"(.+?)"/g);
+  console.log(args);
+  // // If no arg was provided, reply to user saying you need an argument
+  // if (args.length === 0) {
+  //   return message.reply("You need to provide at least the game in the command.");
+  // }
+  // // TODO: Handle case where only one arg (i.e., only game)
+
+  // // The first argument is the game, and stripping away any quotes they may have used
+  // const game = args[0].replace(/" /g, "");
+  // // The second argument is the category, and stripping away any quotes they may have used
+  // const category = args[1].replace(/" /g, "");
+  // console.log(game);
+  // console.log(category);
+};
+
+module.exports = { cmdGetLatestPBForUser, cmdGetWRForGameAndCategory };
