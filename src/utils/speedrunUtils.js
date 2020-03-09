@@ -1,4 +1,5 @@
 const rp = require("request-promise");
+const Fuse = require("fuse.js");
 
 class speedrunAPIError extends Error {
   constructor(message) {
@@ -45,9 +46,14 @@ const speedrunAPIRequest = async ({ options }) => {
 
 const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   try {
-    const categoryId = speedrunGameLookup[game].category[category];
+    const gameId = await speedrunGetGameAndCategory({ game, category });
+    // If no game got found, return null and the command will handle it accordingly
+    if (!gameId) {
+      return null;
+    }
+
     const speedrunReqOptions = {
-      uri: `${speedrunAPIBaseURL}/leaderboards/${gameId}/category/${categoryId}`,
+      uri: `${speedrunAPIBaseURL}/leaderboards/${game}/category/${category}`,
       qs: {
         top: 1
       },
@@ -55,6 +61,42 @@ const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
     };
     const wr = await speedrunAPIRequest({ options: speedrunReqOptions });
     console.log(wr.data.runs[0].run);
+  } catch (err) {
+    throw new speedrunAPIError(err.message);
+  }
+};
+
+const speedrunGetGameAndCategory = async ({ game, category }) => {
+  try {
+    // Setting up the options for the request
+    const speedrunReqOptions = {
+      uri: `${speedrunAPIBaseURL}/games`,
+      qs: {
+        name: game,
+        embed: "categories"
+      },
+      json: true
+    };
+    // Make the request to speedrun.com API
+    const speedrunGameReq = await speedrunAPIRequest({ options: speedrunReqOptions });
+    // If the game wasn't found, return null
+    if (speedrunGameReq.data.length === 0) {
+      return null;
+    }
+    // Fuzzy search for category (taking the first entry from the game list)
+    const categories = speedrunGameReq.data[0].categories.data;
+    const fuzzyOptions = {
+      keys: ["name"]
+    };
+
+    const fuse = new Fuse(categories, fuzzyOptions);
+    const categoryFind = fuse.search("Any");
+    // Filter out individual levels
+    const categoryObj = categoryFind.filter(c => c.type !== "per-level");
+    console.log(categoryObj);
+    //console.log(speedrunGameReq.data[0].categories);
+    // There could be multiple matches, so we'll return only the first result (it does a fuzzy search)
+    return speedrunGameReq.data.length === 0 ? null : speedrunGameReq.data[0].id;
   } catch (err) {
     throw new speedrunAPIError(err.message);
   }
