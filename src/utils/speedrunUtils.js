@@ -46,21 +46,21 @@ const speedrunAPIRequest = async ({ options }) => {
 
 const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   try {
-    const gameId = await speedrunGetGameAndCategory({ game, category });
+    const gameInfo = await speedrunGetGameAndCategory({ game, category });
     // If no game got found, return null and the command will handle it accordingly
-    if (!gameId) {
+    if (!gameInfo) {
       return null;
     }
 
     const speedrunReqOptions = {
-      uri: `${speedrunAPIBaseURL}/leaderboards/${game}/category/${category}`,
+      uri: `${speedrunAPIBaseURL}/leaderboards/${gameInfo.game}/category/${gameInfo.category}`,
       qs: {
         top: 1
       },
       json: true
     };
     const wr = await speedrunAPIRequest({ options: speedrunReqOptions });
-    console.log(wr.data.runs[0].run);
+    return wr.data.runs[0].run;
   } catch (err) {
     throw new speedrunAPIError(err.message);
   }
@@ -83,6 +83,8 @@ const speedrunGetGameAndCategory = async ({ game, category }) => {
     if (speedrunGameReq.data.length === 0) {
       return null;
     }
+    // Extract the first game ID for later
+    const gameID = speedrunGameReq.data[0].id;
     // Fuzzy search for category (taking the first entry from the game list)
     const categories = speedrunGameReq.data[0].categories.data;
     const fuzzyOptions = {
@@ -90,13 +92,12 @@ const speedrunGetGameAndCategory = async ({ game, category }) => {
     };
 
     const fuse = new Fuse(categories, fuzzyOptions);
-    const categoryFind = fuse.search("Any");
+    const categoryFind = fuse.search(category);
     // Filter out individual levels
-    const categoryObj = categoryFind.filter(c => c.type !== "per-level");
-    console.log(categoryObj);
-    //console.log(speedrunGameReq.data[0].categories);
-    // There could be multiple matches, so we'll return only the first result (it does a fuzzy search)
-    return speedrunGameReq.data.length === 0 ? null : speedrunGameReq.data[0].id;
+    const categoryFilter = categoryFind.filter(c => c.type !== "per-level");
+    // Grabbing the first entry's id
+    const categoryID = categoryFilter[0].id;
+    return { game: gameID, category: categoryID };
   } catch (err) {
     throw new speedrunAPIError(err.message);
   }
@@ -129,6 +130,28 @@ const speedrunGetCategory = async ({ category }) => {
     const speedrunCategoryReq = await speedrunAPIRequest({ options: speedrunReqOptions });
     // data.name is the property we want
     return speedrunCategoryReq.data.name;
+  } catch (err) {
+    throw new speedrunAPIError(err.message);
+  }
+};
+
+const speedrunGetUsernameFromID = async ({ userID }) => {
+  // Setting up the options for request
+  const speedrunReqOptions = {
+    uri: `${speedrunAPIBaseURL}/users/${userID}`,
+    json: true
+  };
+
+  try {
+    // Making the requets to retrieve username based on ID
+    const speedrunUsernameReq = await speedrunAPIRequest({ options: speedrunReqOptions });
+    // Checking if the data property of the return object has more than one entry
+    if (speedrunUsernameReq.data.length > 1 || speedrunUsernameReq.data.length === 0) {
+      // If it has more than one entry or no entry, return null
+      return null;
+    }
+    // Return the matching username
+    return speedrunUsernameReq.data.names.international;
   } catch (err) {
     throw new speedrunAPIError(err.message);
   }
@@ -187,4 +210,9 @@ const speedrunGetLatestPBForUser = async ({ userID }) => {
   }
 };
 
-module.exports = { speedrunGetWRForGameAndCategory, speedrunGetLatestPBForUser, speedrunGetUserID };
+module.exports = {
+  speedrunGetWRForGameAndCategory,
+  speedrunGetLatestPBForUser,
+  speedrunGetUserID,
+  speedrunGetUsernameFromID
+};

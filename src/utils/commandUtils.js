@@ -5,7 +5,8 @@ const Discord = require("discord.js");
 const {
   speedrunGetLatestPBForUser,
   speedrunGetUserID,
-  speedrunGetWRForGameAndCategory
+  speedrunGetWRForGameAndCategory,
+  speedrunGetUsernameFromID
 } = require("../utils/speedrunUtils");
 
 // Command to get the latest PB for someone off speedrun.com
@@ -59,21 +60,13 @@ const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
 const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
   // Constructing the args
   const args = message.content.match(/"(.+?)"/g);
-  console.log(args);
   // If no args, invalid
   if (!args) {
     return message.reply("You need to provide a game and category!");
   }
-  // if args length is 1, it means only a game was provided (TODO: Default to the first category that's in the list)
-  if (args.length === 1) {
-    // TO DO
-    // const emojiList = discordClient.emojis.map(e => e.toString()).join(" ");
-    // message.channel.send(emojiList);
-    // const question = args[0].replace(/"/g, "");
-    // return message.channel.send(question).then(async pollMessage => {
-    //   await pollMessage.react("\u{1F44D}"); // Thumbs up
-    //   await pollMessage.react("\u{1F44E}"); // Thumbs down
-    // });
+  // if args length is NOT 2, please warn
+  if (args.length !== 2) {
+    return message.reply("You need to provide BOTH a game and category!");
   }
   // Otherwise, unpack the args
   const processedArgs = args.map(a => a.replace(/"/g, ""));
@@ -90,6 +83,18 @@ const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
     if (!wr) {
       return message.reply("Something went wrong with fetching the WR for the game and category.");
     }
+    // Now to retrieve the user
+    const user = await speedrunGetUsernameFromID({ userID: wr.players[0].id });
+    // If no user, something went wrong
+    if (!user) {
+      return message.reply("Something went wrong with fetching the user.");
+    }
+    // Final message with WR and details
+    return message.reply(
+      `WR for ${game} ${category} is ${humanizeDuration(
+        moment.duration(wr.times["primary_t"], "seconds")
+      )} by ${user}. ${wr.videos ? wr.videos.links[0].uri : "No video"}`
+    );
   } catch (err) {
     // Log the error to the private text channel only admin can see
     console.log(err);
