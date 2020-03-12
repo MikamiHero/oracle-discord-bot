@@ -50,14 +50,14 @@ const checkNoStreamJob = async ({ discordClient }) => {
 
 const runScheduledJobs = async ({ discordClient }) => {
   try {
-    // NB: Will need to rejig this to check
-    // cron.schedule("0 22 * * 1,3,6,7", () => {
-    //   checkNoStreamJob({ discordClient });
-    // });
-    // Check every 5 minute to see if my Twitch stream is live
-    setInterval(() => {
-      //checkStreamLiveJob({ discordClient });
-    }, 1000 * 60);
+    // At 22:00 on Monday, Wednesday, Saturday, and Sunday.
+    cron.schedule("0 22 * * 1,3,6,7", () => {
+      checkNoStreamJob({ discordClient });
+    });
+    //Check every 5 minute to see if my Twitch stream is live
+    // setInterval(() => {
+    //checkStreamLiveJob({ discordClient });
+    // }, 1000 * 60);
   } catch (err) {
     throw new ScheduleJobError(`Problem with running scheduled jobs: ${err.message}`);
   }
