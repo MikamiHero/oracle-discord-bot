@@ -98,7 +98,7 @@ const twitchLastTimeLive = async ({ username }) => {
     }
     // Get the top 10 VODs created on the channel (in case they've highlighted some stuff)
     twitchChannel = await new Promise((resolve, reject) => {
-      twitchAPI.channels.videos({ channelID: twitchChannelID, limit: 10 }, (err, res) => {
+      twitchAPI.channels.videos({ channelID: twitchChannelID, limit: 100 }, (err, res) => {
         if (err) {
           console.log("error inside promise: ", err);
           reject(err);
