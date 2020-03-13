@@ -63,7 +63,6 @@ const twitchIsChannelLive = async ({ twitchChannelID }) => {
   let twitchChannel;
   try {
     twitchAPI.clientID = config.twitchAppClientId;
-    console.log("Twitch channel ID " + twitchChannelID);
     // Make the request to see if the channel is live
     twitchChannel = await new Promise((resolve, reject) => {
       twitchAPI.streams.channel({ channelID: twitchChannelID }, (err, res) => {
@@ -97,9 +96,9 @@ const twitchLastTimeLive = async ({ username }) => {
       // null return means channel is live
       return null;
     }
-    // Get the top VOD created on the channel
+    // Get the top 10 VODs created on the channel (in case they've highlighted some stuff)
     twitchChannel = await new Promise((resolve, reject) => {
-      twitchAPI.channels.videos({ channelID: twitchChannelID, limit: 1 }, (err, res) => {
+      twitchAPI.channels.videos({ channelID: twitchChannelID, limit: 10 }, (err, res) => {
         if (err) {
           console.log("error inside promise: ", err);
           reject(err);
@@ -117,8 +116,15 @@ const twitchLastTimeLive = async ({ username }) => {
     // Calculate the time difference between now and when the last archived broadcast was created
     const dateNow = moment();
     const twitchLastLiveDate = moment(twitchLastBroadcast.created_at);
-    console.log(twitchLastLiveDate);
-    return dateNow.diff(twitchLastLiveDate, "days");
+    const dateDiff = dateNow.diff(twitchLastLiveDate, "days");
+    // If the value in days is 0, convert to hours and return
+    if (dateDiff === 0) {
+      return `${dateNow.diff(twitchLastLiveDate, "hours")} hours`;
+    }
+
+    return dateDiff === 1
+      ? `${dateNow.diff(twitchLastLiveDate, "days")} day`
+      : `${dateNow.diff(twitchLastLiveDate, "days")} days`;
   } catch (err) {
     throw new TwitchAPIError(err.toString());
   }

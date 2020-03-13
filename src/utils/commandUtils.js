@@ -17,7 +17,6 @@ const cmdGetLastTimeLiveOnTwitch = async ({ discordClient, message, args }) => {
     return message.reply("You need to provide a Twitch username.");
   }
   const lastTimeLive = await twitchLastTimeLive({ username: args[0] });
-  console.log(lastTimeLive);
   if (lastTimeLive === null) {
     // Null return means channel is love
     return message.reply("Channel is currently live.");
@@ -25,7 +24,7 @@ const cmdGetLastTimeLiveOnTwitch = async ({ discordClient, message, args }) => {
     // -1 return means it's been over 2 months (i.e., no past broadcasts)
     return message.reply("Channel hasn't been live for a very long time.");
   }
-  return message.reply(`The last time MikamiHero was LIVE was approx ${lastTimeLive} days ago.`);
+  return message.reply(`The last time MikamiHero was LIVE was approx ${lastTimeLive} ago.`);
 };
 
 // Command to get the latest PB for someone off speedrun.com
