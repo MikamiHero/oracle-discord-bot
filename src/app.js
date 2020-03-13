@@ -5,7 +5,6 @@ const fs = require("fs");
 const path = require("path");
 const { runScheduledJobs } = require("./utils/scheduleUtils");
 const { discordRebootMessage } = require("./utils/discordUtils");
-const { speedrunGetWRForGameAndCategory } = require("./utils/speedrunUtils");
 const { twitchLastTimeLive } = require("./utils/twitchUtils");
 
 const commandsDir = `${path.join(__dirname)}/commands/`;
@@ -50,8 +49,6 @@ client.on("ready", async () => {
   await discordRebootMessage({ discordClient: client });
   // Check schedule jobs and run any that have been set up
   await runScheduledJobs({ discordClient: client }).catch(e => console.log(e));
-  //await speedrunGetWRForGameAndCategory({ game: "oot", category: "any%" });
-  await twitchLastTimeLive();
 });
 
 const botToken = config.botToken;

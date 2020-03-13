@@ -13,29 +13,29 @@ class ScheduleJobError extends Error {
   }
 }
 
-const checkStreamLiveJob = async ({ discordClient }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const twitchStreamObj = await twitchIsChannelLive();
-      if (!isEmpty(twitchStreamObj)) {
-        // Message my Discord to say I've gone live
-        await discordStreamLiveSendMessage({
-          discordClient,
-          streamTitle: twitchStreamObj.twitchStreamTitle,
-          twitchURL: twitchStreamObj.twitchURL
-        });
-        // Post a Tweet to say I've gone live
-        await tweetStreamGoingLive({
-          twitchURL: twitchStreamObj.twitchURL,
-          streamTitle: twitchStreamObj.twitchStreamTitle
-        });
-      }
-      resolve(true);
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
+// const checkStreamLiveJob = async ({ discordClient }) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const twitchStreamObj = await twitchIsChannelLive();
+//       if (!isEmpty(twitchStreamObj)) {
+//         // Message my Discord to say I've gone live
+//         await discordStreamLiveSendMessage({
+//           discordClient,
+//           streamTitle: twitchStreamObj.twitchStreamTitle,
+//           twitchURL: twitchStreamObj.twitchURL
+//         });
+//         // Post a Tweet to say I've gone live
+//         await tweetStreamGoingLive({
+//           twitchURL: twitchStreamObj.twitchURL,
+//           streamTitle: twitchStreamObj.twitchStreamTitle
+//         });
+//       }
+//       resolve(true);
+//     } catch (err) {
+//       reject(err);
+//     }
+//   });
+// };
 
 const checkNoStreamJob = async ({ discordClient }) => {
   console.log("Executing scheduled job for no stream tweet", moment().toString());

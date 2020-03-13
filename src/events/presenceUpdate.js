@@ -3,6 +3,7 @@ const { discordAddLiveRole, discordRemoveLiveRole } = require("../utils/discordU
 
 // This file is effectively client.on("presenceUpdate",...)
 // oldMember is before status update, newMember is after status update
+// TODO: Need to add functionality that add a LIVE role when a user goes live
 module.exports = async (client, oldMember, newMember) => {
   return;
   // // Setting up variables

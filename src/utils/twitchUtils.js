@@ -34,7 +34,7 @@ const twitchAuthenticate = async () => {
   }
 };
 
-const twitchGetChannelIdByUsername = async ({ username = config.twitchDefaultChannelName }) => {
+const twitchGetChannelIdByUsername = async ({ username }) => {
   // Make the request
   let twitchChannel;
   try {
@@ -59,16 +59,14 @@ const twitchGetChannelIdByUsername = async ({ username = config.twitchDefaultCha
   return twitchChannelId;
 };
 
-const twitchIsChannelLive = async () => {
+const twitchIsChannelLive = async ({ twitchChannelID }) => {
   let twitchChannel;
   try {
     twitchAPI.clientID = config.twitchAppClientId;
-    // First get the ID of the channel you want to investigate
-    const twitchChannelId = await twitchGetChannelIdByUsername({});
-    console.log("Twitch channel ID " + twitchChannelId);
+    console.log("Twitch channel ID " + twitchChannelID);
     // Make the request to see if the channel is live
     twitchChannel = await new Promise((resolve, reject) => {
-      twitchAPI.streams.channel({ channelID: twitchChannelId }, (err, res) => {
+      twitchAPI.streams.channel({ channelID: twitchChannelID }, (err, res) => {
         if (err) {
           console.log("error inside promise: ", err);
           reject(err);
@@ -81,44 +79,27 @@ const twitchIsChannelLive = async () => {
     throw new TwitchAPIError(err.toString());
   }
   // stream property will be null if channel is NOT live
-  if (!twitchChannel.stream) {
-    console.log("Twitch channel is NOT live");
-    // If we were live but then went offline, flick the flag back to false
-    if (twitchLiveFlagGlobal === true) {
-      twitchLiveFlagGlobal = false;
-    }
-    return {};
-  } else {
-    console.log("Twitch channel is live");
-    // If we are live and the global flag is set to false, it means we just went live and return a filled object
-    if (twitchLiveFlagGlobal === false) {
-      twitchLiveFlagGlobal = true;
-      return {
-        twitchURL: twitchChannel.stream.channel.url,
-        twitchStreamTitle: twitchChannel.stream.channel.status,
-        twitchGame: twitchChannel.stream.channel.game
-      };
-    }
-    // If we are live and the global flag is set to true, it means we're still live and we don't want to keep spamming Discord messages
-    return {};
+  if (twitchChannel.stream === null) {
+    return false;
   }
+  return true;
 };
 
-const twitchLastTimeLive = async () => {
+const twitchLastTimeLive = async ({ username }) => {
   let twitchChannel;
   try {
     twitchAPI.clientID = config.twitchAppClientId;
     // First get the ID of the channel you want to investigate
-    const twitchChannelId = await twitchGetChannelIdByUsername({});
+    const twitchChannelID = await twitchGetChannelIdByUsername({ username });
     // Check to see if we're already live. If we're not live, get check to see when we were last live
-    const twitchChannelLive = await twitchIsChannelLive();
-    if (!isEmpty(twitchChannelLive)) {
-      // TODO: Something that will feed into the Discord server
-      return;
+    const twitchChannelLive = await twitchIsChannelLive({ twitchChannelID });
+    if (twitchChannelLive) {
+      // null return means channel is live
+      return null;
     }
     // Get the top VOD created on the channel
     twitchChannel = await new Promise((resolve, reject) => {
-      twitchAPI.channels.videos({ channelID: twitchChannelId, limit: 1 }, (err, res) => {
+      twitchAPI.channels.videos({ channelID: twitchChannelID, limit: 1 }, (err, res) => {
         if (err) {
           console.log("error inside promise: ", err);
           reject(err);
@@ -130,13 +111,14 @@ const twitchLastTimeLive = async () => {
     // Filter out only the an archived video (i.e., omitting highlights which also get returned in this request)
     const twitchLastBroadcast = head(twitchChannel.videos.filter(video => video.broadcast_type === "archive"));
     if (isEmpty(twitchLastBroadcast)) {
-      // TODO: Return message to say I haven't been live in over 2 months (as that's the limit for partner VODs)
-      return;
+      // -1 return means channel hasn't been live in over 2 months (as that's the limit for partner VODs)
+      return -1;
     }
     // Calculate the time difference between now and when the last archived broadcast was created
     const dateNow = moment();
     const twitchLastLiveDate = moment(twitchLastBroadcast.created_at);
-    console.log(`The last time MikamiHero was LIVE was approx. ${dateNow.diff(twitchLastLiveDate, "days")} days ago.`);
+    console.log(twitchLastLiveDate);
+    return dateNow.diff(twitchLastLiveDate, "days");
   } catch (err) {
     throw new TwitchAPIError(err.toString());
   }
