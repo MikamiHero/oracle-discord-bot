@@ -21,17 +21,17 @@ const speedrunGameLookup = [
       mst: "jdrwr0k6",
       noww: "xd1wj828",
       glitchless: "zd35jnkn",
-      ganonless: "9kvr802g"
-    }
+      ganonless: "9kvr802g",
+    },
   },
   { id: "o1y9wo6q", name: "Super Mario 64" },
   {
     id: "kdkjex1m",
     name: "Zelda: Ocarina of Time Master Quest",
     category: {
-      "Child Dungeons": "8249jed5"
-    }
-  }
+      "Child Dungeons": "8249jed5",
+    },
+  },
 ];
 
 // const speedrunConstructReqData = { game };
@@ -55,9 +55,9 @@ const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
     const speedrunReqOptions = {
       uri: `${speedrunAPIBaseURL}/leaderboards/${gameInfo.game}/category/${gameInfo.category}`,
       qs: {
-        top: 1
+        top: 1,
       },
-      json: true
+      json: true,
     };
     const wr = await speedrunAPIRequest({ options: speedrunReqOptions });
     return wr.data.runs[0].run;
@@ -73,9 +73,9 @@ const speedrunGetGameAndCategory = async ({ game, category }) => {
       uri: `${speedrunAPIBaseURL}/games`,
       qs: {
         name: game,
-        embed: "categories"
+        embed: "categories",
       },
-      json: true
+      json: true,
     };
     // Make the request to speedrun.com API
     const speedrunGameReq = await speedrunAPIRequest({ options: speedrunReqOptions });
@@ -88,13 +88,13 @@ const speedrunGetGameAndCategory = async ({ game, category }) => {
     // Fuzzy search for category (taking the first entry from the game list)
     const categories = speedrunGameReq.data[0].categories.data;
     const fuzzyOptions = {
-      keys: ["name"]
+      keys: ["name"],
     };
 
     const fuse = new Fuse(categories, fuzzyOptions);
     const categoryFind = fuse.search(category);
     // Filter out individual levels
-    const categoryFilter = categoryFind.filter(c => c.type !== "per-level");
+    const categoryFilter = categoryFind.filter((c) => c.type !== "per-level");
     // Grabbing the first entry's id
     const categoryID = categoryFilter[0].id;
     return { game: gameID, category: categoryID };
@@ -108,7 +108,7 @@ const speedrunGetGame = async ({ game }) => {
     // Setting up the options for the request
     const speedrunReqOptions = {
       uri: `${speedrunAPIBaseURL}/games/${game}`,
-      json: true
+      json: true,
     };
     // Make the request to speedrun.com API
     const speedrunGameReq = await speedrunAPIRequest({ options: speedrunReqOptions });
@@ -124,7 +124,7 @@ const speedrunGetCategory = async ({ category }) => {
     // Setting up the options for the request
     const speedrunReqOptions = {
       uri: `${speedrunAPIBaseURL}/categories/${category}`,
-      json: true
+      json: true,
     };
     // Make the request to speedrun.com API
     const speedrunCategoryReq = await speedrunAPIRequest({ options: speedrunReqOptions });
@@ -139,7 +139,7 @@ const speedrunGetUsernameFromID = async ({ userID }) => {
   // Setting up the options for request
   const speedrunReqOptions = {
     uri: `${speedrunAPIBaseURL}/users/${userID}`,
-    json: true
+    json: true,
   };
 
   try {
@@ -162,9 +162,9 @@ const speedrunGetUserID = async ({ username }) => {
   const speedrunReqOptions = {
     uri: `${speedrunAPIBaseURL}/users`,
     qs: {
-      name: username
+      name: username,
     },
-    json: true
+    json: true,
   };
 
   try {
@@ -187,7 +187,7 @@ const speedrunGetLatestPBForUser = async ({ userID }) => {
     // Setting up options to make the latest PB request from speedrun.com
     const speedrunReqOptions = {
       uri: `${speedrunAPIBaseURL}/users/${userID}/personal-bests`,
-      json: true
+      json: true,
     };
     // Make the request to speedrun.com API
     const speedrunPBReq = await speedrunAPIRequest({ options: speedrunReqOptions });
@@ -214,5 +214,5 @@ module.exports = {
   speedrunGetWRForGameAndCategory,
   speedrunGetLatestPBForUser,
   speedrunGetUserID,
-  speedrunGetUsernameFromID
+  speedrunGetUsernameFromID,
 };
