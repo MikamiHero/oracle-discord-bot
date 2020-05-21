@@ -6,7 +6,7 @@ const {
   speedrunGetLatestPBForUser,
   speedrunGetUserID,
   speedrunGetWRForGameAndCategory,
-  speedrunGetUsernameFromID
+  speedrunGetUsernameFromID,
 } = require("../utils/speedrunUtils");
 const { twitchLastTimeLive } = require("../utils/twitchUtils");
 
@@ -40,17 +40,17 @@ const cmdGetLatestPBForUser = async ({ discordClient, message, args }) => {
   try {
     // First get the ID of the user on speedrun.com (ephemeral ID)
     const speedrunUserID = await speedrunGetUserID({ username });
-    // If null, it means something went wrong with fetching the user data
+    // If null, it means no user was found
     if (!speedrunUserID) {
-      return message.reply("Something went wrong with getting the user.");
+      return message.reply(`User ${username} could not be found on speedrun.com. Please check spelling.`);
     }
     // Now making the request for their latest PB based on user ID
     const latestSpeedrunPBForUser = await speedrunGetLatestPBForUser({
-      userID: speedrunUserID
+      userID: speedrunUserID,
     });
     // If null, it means something went wrong with fetching the user's PBs
     if (!latestSpeedrunPBForUser) {
-      return message.reply("Something went wrong with getting the user's PBs.");
+      return message.reply(`User ${username} has no PBs recorded on speedrun.com.`);
     }
     // Create the embed to return to the user
     let speedrunPBEmbed = new Discord.RichEmbed();
@@ -88,7 +88,7 @@ const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
     return message.reply("You need to provide BOTH a game and category!");
   }
   // Otherwise, unpack the args
-  const processedArgs = args.map(a => a.replace(/"/g, ""));
+  const processedArgs = args.map((a) => a.replace(/"/g, ""));
   const game = processedArgs[0];
   const category = processedArgs[1];
   // Make request now
@@ -96,7 +96,7 @@ const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
     // Now making the request for the game and WR in specified category
     const wr = await speedrunGetWRForGameAndCategory({
       game: game,
-      category: category
+      category: category,
     });
     // If null, it means something went wrong with fetching the user's PBs
     if (!wr) {

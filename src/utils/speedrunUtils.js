@@ -2,9 +2,8 @@ const rp = require("request-promise");
 const Fuse = require("fuse.js");
 
 class speedrunAPIError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
+  constructor(...args) {
+    super(...args);
   }
 }
 
@@ -36,13 +35,7 @@ const speedrunGameLookup = [
 
 // const speedrunConstructReqData = { game };
 
-const speedrunAPIRequest = async ({ options }) => {
-  try {
-    return await rp(options);
-  } catch (err) {
-    throw new speedrunAPIError(err.message);
-  }
-};
+const speedrunAPIRequest = async ({ options }) => rp(options);
 
 const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   try {
@@ -160,24 +153,20 @@ const speedrunGetUsernameFromID = async ({ userID }) => {
 const speedrunGetUserID = async ({ username }) => {
   // Setting up the options for request
   const speedrunReqOptions = {
-    uri: `${speedrunAPIBaseURL}/users`,
-    qs: {
-      name: username,
-    },
+    uri: `${speedrunAPIBaseURL}/users/${username}`,
     json: true,
   };
 
   try {
     // Making the requets to retrieve user ID based on username
     const speedrunUserIDReq = await speedrunAPIRequest({ options: speedrunReqOptions });
-    // Checking if the data property of the return object has more than one entry
-    if (speedrunUserIDReq.data.length > 1 || speedrunUserIDReq.data.length === 0) {
-      // If it has more than one entry or no entry, return null
+    // Return the matching user's id
+    return speedrunUserIDReq.data.id;
+  } catch (err) {
+    // If it's a 404, simply return null and inform the user the user could not be found. Else log everything else
+    if (err.statusCode === 404) {
       return null;
     }
-    // Return the matching user's id
-    return speedrunUserIDReq.data[0].id;
-  } catch (err) {
     throw new speedrunAPIError(err.message);
   }
 };
