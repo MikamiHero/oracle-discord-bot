@@ -41,8 +41,12 @@ const speedrunGetWRForGameAndCategory = async ({ game, category }) => {
   try {
     const gameInfo = await speedrunGetGameAndCategory({ game, category });
     // If no game got found, return null and the command will handle it accordingly
-    if (!gameInfo) {
-      return null;
+    if (!gameInfo.game) {
+      return { game: null, category: null, weblink: null };
+    }
+    // If no category, pass the URL which should be included
+    if (gameInfo.game && !gameInfo.category) {
+      return { game: gameInfo.game, category: null, weblink: gameInfo.weblink };
     }
 
     const speedrunReqOptions = {
@@ -74,23 +78,31 @@ const speedrunGetGameAndCategory = async ({ game, category }) => {
     const speedrunGameReq = await speedrunAPIRequest({ options: speedrunReqOptions });
     // If the game wasn't found, return null
     if (speedrunGameReq.data.length === 0) {
-      return null;
+      return { game: null, category: null, weblink: null };
     }
+
     // Extract the first game ID for later
     const gameID = speedrunGameReq.data[0].id;
+    // Storing the weblink for later as well
+    const gameURL = speedrunGameReq.data[0].weblink;
     // Fuzzy search for category (taking the first entry from the game list)
     const categories = speedrunGameReq.data[0].categories.data;
     const fuzzyOptions = {
       keys: ["name"],
     };
-
     const fuse = new Fuse(categories, fuzzyOptions);
     const categoryFind = fuse.search(category);
+    // If the category search turns up empty, give the user the page URL instead
+    if (categoryFind.length === 0) {
+      return { game: gameID, category: null, weblink: gameURL };
+    }
+
     // Filter out individual levels
     const categoryFilter = categoryFind.filter((c) => c.type !== "per-level");
+
     // Grabbing the first entry's id
     const categoryID = categoryFilter[0].id;
-    return { game: gameID, category: categoryID };
+    return { game: gameID, category: categoryID, weblink: gameURL };
   } catch (err) {
     throw new speedrunAPIError(err.message);
   }

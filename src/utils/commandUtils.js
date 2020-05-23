@@ -98,9 +98,16 @@ const cmdGetWRForGameAndCategory = async ({ discordClient, message }) => {
       game: game,
       category: category,
     });
-    // If null, it means something went wrong with fetching the user's PBs
-    if (!wr) {
-      return message.reply("Something went wrong with fetching the WR for the game and category.");
+
+    // If game property is null, it means something went wrong with fetching the game
+    if (!wr.game) {
+      return message.reply("The game wasn't found on speedrun.com.");
+    }
+    // If the category property is null, give user the speedrun.com page for the game
+    if (!wr.category) {
+      return message.reply(
+        `The ${category} category was not found for ${game}. Here's the speedrun.com page if you wish to check yourself: ${wr.weblink}`
+      );
     }
     // Now to retrieve the user
     const user = await speedrunGetUsernameFromID({ userID: wr.players[0].id });
