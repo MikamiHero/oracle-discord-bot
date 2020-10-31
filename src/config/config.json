@@ -6,6 +6,7 @@
     "discordBotLogChannel": "oracle_logs",
     "discordModChannel": "modchat_v2",
     "discordNewsChannel": "oracle_logs",
+    "discordLivePostingChannel": "oracle_logs",
     "twitchDefaultChannelName": "MikamiHero"
   },
   "test": {
@@ -15,6 +16,7 @@
     "discordBotLogChannel": "oracle_logs",
     "discordModChannel": "modchat_v2",
     "discordNewsChannel": "batnews_v2",
+    "discordLivePostingChannel": "notes_deploy",
     "twitchDefaultChannelName": "MikamiHero"
   },
   "production": {
@@ -24,6 +26,7 @@
     "discordBotLogChannel": "oracle_logs",
     "discordModChannel": "modchat_v2",
     "discordNewsChannel": "batnews_v2",
+    "discordLivePostingChannel": "live_posting",
     "twitchDefaultChannelName": "MikamiHero"
   }
 }

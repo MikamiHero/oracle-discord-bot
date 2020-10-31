@@ -15,6 +15,7 @@ config.discordGeneralChannel = config[config.nodeEnv].discordGeneralChannel;
 config.discordBotLogChannel = config[config.nodeEnv].discordBotLogChannel;
 config.discordModChannel = config[config.nodeEnv].discordModChannel;
 config.discordNewsChannel = config[config.nodeEnv].discordNewsChannel;
+config.discordLivePostingChannel = config[config.nodeEnv].discordLivePostingChannel;
 config.twitchDefaultChannelName = config[config.nodeEnv].twitchDefaultChannelName;
 config.commandPrefix = config[config.nodeEnv].commandPrefix;
 
