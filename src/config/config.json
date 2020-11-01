@@ -6,7 +6,7 @@
     "discordBotLogChannel": "oracle_logs",
     "discordModChannel": "modchat_v2",
     "discordNewsChannel": "oracle_logs",
-    "discordLivePostingChannel": "oracle_logs",
+    "discordLivePostingChannel": "live_posting",
     "twitchDefaultChannelName": "MikamiHero"
   },
   "test": {

@@ -24,7 +24,7 @@ class DiscordError extends Error {
 
 const discordNoStreamSendMessage = async ({ discordClient, tweetURL }) => {
   try {
-    const generalChannel = discordClient.channels.find((ch) => ch.name === config.discordGeneralChannel);
+    const generalChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordGeneralChannel);
     const message = `@everyone Unfortunately, Mikami cannot stream tonight: ${tweetURL} \n He will see you all soon!`;
     await generalChannel.send(message);
   } catch (err) {
@@ -34,7 +34,7 @@ const discordNoStreamSendMessage = async ({ discordClient, tweetURL }) => {
 
 const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTitle }) => {
   try {
-    const generalChannel = discordClient.channels.find((ch) => ch.name === config.discordGeneralChannel);
+    const generalChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordGeneralChannel);
     const message = `@everyone LIVE :smile: ${streamTitle} Hope to see you all there ${twitchURL}`;
     await generalChannel.send(message);
   } catch (err) {
@@ -44,11 +44,11 @@ const discordStreamLiveSendMessage = async ({ discordClient, twitchURL, streamTi
 
 const discordRebootMessage = async ({ discordClient }) => {
   try {
-    const generalChannel = discordClient.channels.find((ch) => ch.name === config.discordBotLogChannel);
+    const generalChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordBotLogChannel);
     const message = `Rebooting complete. Build successful at time ${moment().toString()} :robot: Ready to rock!`;
     await generalChannel.send(message);
   } catch (err) {
-    throw new DiscordError("Error in discordStreamLiveSendMessage: ", err);
+    throw new DiscordError(`Error in discordRebootMessage: ${err.message}`);
   }
 };
 
@@ -76,7 +76,7 @@ const discordAddRole = async ({ discordClient, message, args }) => {
     return message.reply("Couldn't find that role!");
   }
   // Finding the logs channel
-  const botLogChannel = discordClient.channels.find((ch) => ch.name === config.discordBotLogChannel);
+  const botLogChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordBotLogChannel);
 
   // If the user already has the role, return and log
   if (roleMember.roles.has(guildRole.id)) {
@@ -117,7 +117,7 @@ const discordRemoveRole = async ({ discordClient, message, args }) => {
     return message.reply("Couldn't find that role!");
   }
   // Finding the logs channel
-  const botLogChannel = discordClient.channels.find((ch) => ch.name === config.discordBotLogChannel);
+  const botLogChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordBotLogChannel);
 
   // If the user doesn't have the role, it means it's been removed already
   if (!roleMember.roles.has(guildRole.id)) {
@@ -137,7 +137,7 @@ const discordRemoveRole = async ({ discordClient, message, args }) => {
 
 // Custom function just for adding when a user has gone live, add that custom role (automated)
 const discordAddLiveRole = async ({ discordClient, userId }) => {
-  const botLogChannel = discordClient.channels.find((ch) => ch.name === config.discordBotLogChannel);
+  const botLogChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordBotLogChannel);
   // Fetch the guildMember object that contains the user in question
   const member = discordClient.fetchUser(userId);
   if (!member) {
@@ -168,7 +168,7 @@ const discordAddLiveRole = async ({ discordClient, userId }) => {
 
 // Custom function just for removing when a user is done streaming, remove that custom role (automated)
 const discordRemoveLiveRole = async ({ discordClient, userId }) => {
-  const botLogChannel = discordClient.channels.find((ch) => ch.name === config.discordBotLogChannel);
+  const botLogChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordBotLogChannel);
   // Fetch the guildMember object that contains the user in question
   const member = discordClient.fetchUser(userId);
   if (!member) {
@@ -257,7 +257,7 @@ const discordStartPoll = async ({ discordClient, message }) => {
     pollEmbed.addField(questionPollChoices[i], questionChoices[i], true);
   }
   // Find the news channel to post the poll
-  const newsChannel = discordClient.channels.find((ch) => ch.name === config.discordNewsChannel);
+  const newsChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordNewsChannel);
 
   // Return question with choices as react emojis (letters A, B, etc.)
   await newsChannel.send("@everyone");
@@ -281,6 +281,19 @@ const discordHelp = async ({ discordClient, message, args }) => {
   return message.reply(embed);
 };
 
+// Returns the last message from live posting channel reserved for only MikamiHero
+const discordGetLastLivePosting = async ({ discordClient }) => {
+  // Get the channel name for the live posting
+  const livePostingChannel = discordClient.channels.cache.find((ch) => ch.name === config.discordLivePostingChannel);
+  // Fetch last message ID that was posted in the live posting channel
+  const latestLivePostID = await livePostingChannel.lastMessageID;
+  // Fetching the actual message that was posted in the channel
+  const latestLivePostMsg = await livePostingChannel.messages.fetch(latestLivePostID);
+  // Extracting the actual contents of the message and return
+  const latestLivePost = latestLivePostMsg.content;
+  return latestLivePost;
+};
+
 // Fetch the ban list for Twitch channel
 /* 
 TODO:
@@ -298,5 +311,6 @@ module.exports = {
   discordAddLiveRole,
   discordRemoveLiveRole,
   discordStartPoll,
+  discordGetLastLivePosting,
   discordHelp,
 };

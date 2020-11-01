@@ -2,12 +2,13 @@ const Twit = require("twit");
 const config = require("../config");
 const moment = require("moment");
 const head = require("lodash.head");
+const { post } = require("request-promise");
 
 const Twitter = new Twit({
   consumer_key: config.twitConsumerKey,
   consumer_secret: config.twitConsumerSecret,
   access_token: config.twitAccessToken,
-  access_token_secret: config.twitAccessTokenSecret
+  access_token_secret: config.twitAccessTokenSecret,
 });
 
 class TwitError extends Error {
@@ -17,6 +18,8 @@ class TwitError extends Error {
   }
 }
 
+const tweetCharLimit = 280;
+
 const tweetParams = {
   recentTweets: {
     endPoint: "statuses/user_timeline",
@@ -24,12 +27,12 @@ const tweetParams = {
       screen_name: "MikamiHero",
       count: 10,
       exclude_replies: true,
-      include_rts: false
-    }
+      include_rts: false,
+    },
   },
   streamGoingLiveTweet: {
-    endPoint: "statuses/update"
-  }
+    endPoint: "statuses/update",
+  },
 };
 
 const tweetGetURL = ({ tweetData }) => {
@@ -43,17 +46,16 @@ const tweetGetURL = ({ tweetData }) => {
   return textURL || entityURL;
 };
 
-const getRecentTweets = async () =>
-  Twitter.get(tweetParams.recentTweets.endPoint, tweetParams.recentTweets.params);
+const getRecentTweets = async () => Twitter.get(tweetParams.recentTweets.endPoint, tweetParams.recentTweets.params);
 
 const noStreamFilter = ({ tweetText }) => {
   const noStreamTriggers = ["No stream", "no stream", "cancel stream"];
-  const noStreamBool = noStreamTriggers.map(trigger => tweetText.includes(trigger));
-  return noStreamBool.some(bool => bool === true);
+  const noStreamBool = noStreamTriggers.map((trigger) => tweetText.includes(trigger));
+  return noStreamBool.some((bool) => bool === true);
 };
 
 const getLatestNoStreamTweet = ({ tweets }) =>
-  tweets.find(tweet => noStreamFilter({ tweetText: tweet.text }) === true);
+  tweets.find((tweet) => noStreamFilter({ tweetText: tweet.text }) === true);
 
 const last24Hours = ({ tweetDate }) =>
   moment().diff(moment(tweetDate, "dd MMM DD HH:mm:ss ZZ YYYY", "en"), "hours") < 24;
@@ -63,9 +65,7 @@ const getNoStreamTweet = async () => {
     // Get the most recent tweets
     const recentTweets = await getRecentTweets();
     // Filter out tweets that haven't been in the last 24 hours since now
-    const tweetsInLast24Hrs = recentTweets.data.filter(tweet =>
-      last24Hours({ tweetDate: tweet.created_at })
-    );
+    const tweetsInLast24Hrs = recentTweets.data.filter((tweet) => last24Hours({ tweetDate: tweet.created_at }));
     // Of those tweets in the last 24 hours, see if any of them contain a 'no stream' trigger
     const noStreamTweet = getLatestNoStreamTweet({ tweets: tweetsInLast24Hrs });
     // If no tweet fires off the trigger, return empty. Else extract URL
@@ -76,20 +76,32 @@ const getNoStreamTweet = async () => {
   }
 };
 
-const tweetStreamGoingLive = async ({ twitchURL, streamTitle }) => {
+const tweetStreamGoingLive = async ({ goingLiveTweet }) => {
   try {
     const tweet = {
-      status: `LIVE at ${twitchURL} ... ${streamTitle}`
+      status: tweetRemoveEveryoneTag({ tweet: goingLiveTweet }),
     };
-    await Twitter.post(streamGoingLiveTweet.endPoint, tweet);
+    return await Twitter.post(tweetParams.streamGoingLiveTweet.endPoint, tweet);
   } catch (err) {
-    throw new TwitError(`Problem in Twitter API posting: ${err.toString()}`);
+    throw new TwitError(`Problem in Twitter API posting: ${err.message}`);
   }
 };
+
+const tweetIsUnderLimit = async ({ tweet }) => {
+  try {
+    const tweetLength = tweet.length;
+    return tweetLength <= tweetCharLimit;
+  } catch (err) {
+    throw new TwitError(`Problem in Twitter API posting: ${err.message}`);
+  }
+};
+
+const tweetRemoveEveryoneTag = ({ tweet }) => tweet.split("@everyone ").pop();
 
 module.exports = {
   getNoStreamTweet,
   tweetStreamGoingLive,
+  tweetIsUnderLimit,
   // These functions below aren't being exported for usage; only unit tests
-  last24Hours
+  last24Hours,
 };
