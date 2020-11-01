@@ -9,7 +9,7 @@
     "bufferutil": "^4.0.1",
     "cross-env": "^7.0.2",
     "discord": "^0.8.2",
-    "discord.js": "^11.4.2",
+    "discord.js": "^12.4.1",
     "djs-commands": "^1.2.2",
     "fs": "0.0.1-security",
     "fuse.js": "^3.4.6",
