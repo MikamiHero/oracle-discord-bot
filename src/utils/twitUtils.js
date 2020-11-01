@@ -21,6 +21,15 @@ class TwitError extends Error {
 const tweetCharLimit = 280;
 
 const tweetParams = {
+  lastTweet: {
+    endPoint: "statuses/user_timeline",
+    params: {
+      screen_name: "MikamiHero",
+      count: 1,
+      exclude_replies: true,
+      include_rts: false,
+    },
+  },
   recentTweets: {
     endPoint: "statuses/user_timeline",
     params: {
@@ -33,6 +42,12 @@ const tweetParams = {
   streamGoingLiveTweet: {
     endPoint: "statuses/update",
   },
+  deleteTweet: {
+    endPoint: "statuses/destroy",
+    params: {
+      trim_user: true,
+    },
+  },
 };
 
 const tweetGetURL = ({ tweetData }) => {
@@ -44,6 +59,14 @@ const tweetGetURL = ({ tweetData }) => {
   const entityURLIndex = head(tweetData.entities.urls);
   const entityURL = !entityURLIndex ? null : entityURLIndex.url;
   return textURL || entityURL;
+};
+
+const tweetGetLastTweet = async () => {
+  try {
+    return await Twitter.get(tweetParams.lastTweet.endPoint, tweetParams.lastTweet.params);
+  } catch (err) {
+    throw new TwitError(`Problem in Twitter API posting: ${err.message}`);
+  }
 };
 
 const getRecentTweets = async () => Twitter.get(tweetParams.recentTweets.endPoint, tweetParams.recentTweets.params);
@@ -71,7 +94,6 @@ const getNoStreamTweet = async () => {
     // If no tweet fires off the trigger, return empty. Else extract URL
     return !noStreamTweet ? null : tweetGetURL({ tweetData: noStreamTweet });
   } catch (err) {
-    console.log(err);
     throw new TwitError("Problem in Twitter API calling: ", err);
   }
 };
@@ -98,10 +120,24 @@ const tweetIsUnderLimit = async ({ tweet }) => {
 
 const tweetRemoveEveryoneTag = ({ tweet }) => tweet.split("@everyone ").pop();
 
+const tweetDelete = async ({ tweetID }) => {
+  try {
+    const deletedTweet = await Twitter.post(
+      `${tweetParams.deleteTweet.endPoint}/${tweetID}`,
+      tweetParams.deleteTweet.params
+    );
+    return deletedTweet;
+  } catch (err) {
+    throw new TwitError(`Problem in Twitter API posting: ${err.message}`);
+  }
+};
+
 module.exports = {
+  tweetGetLastTweet,
   getNoStreamTweet,
   tweetStreamGoingLive,
   tweetIsUnderLimit,
+  tweetDelete,
   // These functions below aren't being exported for usage; only unit tests
   last24Hours,
 };
